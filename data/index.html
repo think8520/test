@@ -1,0 +1,32 @@
+
+<!doctype html><html lang=ko>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width, initial-scale=1, user-scalable=no">
+<title>P2 HUB75E Controller</title>
+<link rel=stylesheet href=/style.css>
+</head>
+<body>
+<header><h1>P2 LED (128×64)</h1></header>
+<section class=controls>
+  <div class=row><label>텍스트</label><input id=txt placeholder="표시할 텍스트(한글/영문)"></div>
+  <div class=row><label>색상</label><input id=color type=color value=#ffffff></div>
+  <div class=row><label>크기</label>
+    <div class=radio>
+      <label><input type=radio name=pt value=12>12</label>
+      <label><input type=radio name=pt value=14 checked>14</label>
+      <label><input type=radio name=pt value=16>16</label>
+    </div>
+  </div>
+  <div class=row><button id=sendTxt>텍스트 표시</button></div>
+</section>
+<section class=preview>
+  <canvas id=preview width=128 height=64></canvas>
+  <p class=hint>캔버스를 터치/드래그하여 위치를 지정하세요.</p>
+</section>
+<section class=upload>
+  <div class=row><input id=file type=file accept=".png,.jpg,.jpeg"><button id=upload>이미지 업로드</button></div>
+  <div class=progress><div id=bar></div></div>
+</section>
+<script src=/app.js></script>
+</body></html>
