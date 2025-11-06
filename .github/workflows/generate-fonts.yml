@@ -1,0 +1,56 @@
+name: Generate KR Fonts
+
+on:
+  workflow_dispatch:
+    inputs:
+      ttf_url:
+        description: 'Direct URL of NotoSansKR-Bold.ttf'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build deps (gcc/make/freetype)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git build-essential pkg-config libfreetype6-dev
+
+      - name: Build Adafruit fontconvert
+        run: |
+          git clone https://github.com/adafruit/Adafruit-GFX-Library.git
+          cd Adafruit-GFX-Library/fontconvert
+          make
+          ./fontconvert | head -n 1
+
+      - name: Download TTF from provided URL
+        run: |
+          mkdir -p fonts
+          curl -L "${{ github.event.inputs.ttf_url }}" -o fonts/NotoSansKR-Bold.ttf
+          ls -l fonts/
+
+      - name: Generate headers (12/14/16 pt, ASCII + Hangul)
+        run: |
+          cd Adafruit-GFX-Library/fontconvert
+          # 12pt
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 12 0x20 0x7E    > ../../include/Fonts/NotoSansKR12_ASCII.h
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 12 0xAC00 0xD7A3 > ../../include/Fonts/NotoSansKR12_Hangul.h
+          # 14pt
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 14 0x20 0x7E    > ../../include/Fonts/NotoSansKR14_ASCII.h
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 14 0xAC00 0xD7A3 > ../../include/Fonts/NotoSansKR14_Hangul.h
+          # 16pt
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 16 0x20 0x7E    > ../../include/Fonts/NotoSansKR16_ASCII.h
+          ./fontconvert ../../fonts/NotoSansKR-Bold.ttf 16 0xAC00 0xD7A3 > ../../include/Fonts/NotoSansKR16_Hangul.h
+
+          echo "Generated files:"
+          ls -l ../../include/Fonts/
+
+      - name: Upload headers as artifact (zip)
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotoSansKR_headers
+          path: include/Fonts/*.h
